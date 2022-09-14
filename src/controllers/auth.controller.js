@@ -54,12 +54,10 @@ async function login(req, res) {
   try {
     const user = await db.collection("users").findOne({ email });
     if (!user) {
-      return res.status(404).send({ error: "User not found!" });
+      return res.status(404).send({ error: "Check user and password inputs" });
     }
     if (!bcrypt.compareSync(password, user.password)) {
-      return res
-        .status(401)
-        .send({ error: "The password does not match the email" });
+      return res.status(401).send({ error: "Check user and password inputs" });
     }
     const token = uuid();
     await db.collection("sessions").insertOne({ userId: user._id, token });
