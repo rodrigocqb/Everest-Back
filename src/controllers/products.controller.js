@@ -1,4 +1,5 @@
 import db from '../database/db.js';
+import { ObjectId } from "mongodb";
 
 async function listProducts(req, res) {
     try {
@@ -7,7 +8,7 @@ async function listProducts(req, res) {
             .status(200)
             .send(catalog)
     } catch (error) {
-        return res
+         res
             .send(error.message)
             .status(404);
     }
@@ -54,4 +55,19 @@ try {
 }
 }
 
-export { listProducts, addToCart, listCartProducts }
+async function removeCartProduct(req, res){
+    const cartItemId = req.body.cartItemId;
+    if(!cartItemId) {
+        return res.sendStatus(422)
+    }
+try {
+    await db.collection('cart').deleteOne({_id: ObjectId(cartItemId)})
+    res.sendStatus(200)
+} catch (error) {
+    res
+    .status(404)
+    .send(error.message)
+}
+}
+
+export { listProducts, addToCart, listCartProducts, removeCartProduct }
