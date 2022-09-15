@@ -5,7 +5,6 @@ async function validateToken(req, res, next) {
 
     const authorization = req.headers.authorization;
     const token = authorization?.replace('Bearer ', '');
-console.log(authorization)
     if (!authorization) {
         return res.sendStatus(401);
     }
@@ -24,7 +23,6 @@ console.log(authorization)
         res.locals.user = user;
         res.locals.token = token;
 
-console.log('foi')
         next();
 
     } catch (error) {
