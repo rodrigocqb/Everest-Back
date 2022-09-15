@@ -11,6 +11,28 @@ const addressSchema = joi.object({
   state: joi.string().required(),
 });
 
+const productSchema = joi.object({
+  name: joi.string().required(),
+  price: joi.number().required(),
+  image: joi.string().uri().required(),
+  description: joi.string().required(),
+  sizes: joi.array().items(joi.string()),
+});
+
+async function createProduct(req, res) {
+  const validation = productSchema.validate(req.body, { abortEarly: false });
+  if (validation.error) {
+    const errors = validation.error.details.map((value) => value.message);
+    return res.status(422).send(errors);
+  }
+  try {
+    await db.collection("products").insertOne(req.body);
+    res.sendStatus(201);
+  } catch (error) {
+    res.send(error.message).status(500);
+  }
+}
+
 async function listProducts(req, res) {
   try {
     const catalog = await db.collection("products").find({}).toArray();
@@ -29,13 +51,17 @@ async function addToCart(req, res) {
   const product = {
     userId,
     productId,
-    quantity: 1
+    quantity: 1,
   };
   try {
-    const hasProduct = await db.collection("cart").findOne({ userId, productId});
+    const hasProduct = await db
+      .collection("cart")
+      .findOne({ userId, productId });
     if (hasProduct) {
       const quantity = hasProduct.quantity;
-      await db.collection("cart").updateOne({ userId, productId}, {$set: {quantity: quantity + 1}});
+      await db
+        .collection("cart")
+        .updateOne({ userId, productId }, { $set: { quantity: quantity + 1 } });
       return res.sendStatus(200);
     }
     await db.collection("cart").insertOne(product);
@@ -60,18 +86,25 @@ async function listCartProducts(req, res) {
 
 async function removeCartProduct(req, res) {
   const cartItemId = req.params.cartItemId;
-  console.log(cartItemId)
+  console.log(cartItemId);
   if (!cartItemId) {
     return res.sendStatus(422);
   }
   try {
-    const cartItem = await db.collection("cart").findOne({ _id: ObjectId(cartItemId)})
-    const quantity = cartItem.quantity
-    if ( quantity <= 0) {
-      return res.sendStatus(422)
+    const cartItem = await db
+      .collection("cart")
+      .findOne({ _id: ObjectId(cartItemId) });
+    const quantity = cartItem.quantity;
+    if (quantity <= 0) {
+      return res.sendStatus(422);
     }
     if (quantity > 1) {
-      await db.collection("cart").updateOne({ _id: ObjectId(cartItemId)}, {$set: {quantity: quantity -1}});
+      await db
+        .collection("cart")
+        .updateOne(
+          { _id: ObjectId(cartItemId) },
+          { $set: { quantity: quantity - 1 } }
+        );
       return res.sendStatus(200);
     }
     await db.collection("cart").deleteOne({ _id: ObjectId(cartItemId) });
@@ -115,4 +148,5 @@ export {
   listCartProducts,
   removeCartProduct,
   completeOrder,
+  createProduct,
 };

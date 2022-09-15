@@ -5,11 +5,13 @@ import {
   listCartProducts,
   removeCartProduct,
   completeOrder,
+  createProduct,
 } from "../controllers/products.controller.js";
 import authorizationMiddleware from "../middleware/token-auth.middleware.js";
 const router = express.Router();
 
 router.get("/products", listProducts);
+router.post("/products", createProduct);
 
 router.use(authorizationMiddleware);
 
