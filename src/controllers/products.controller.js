@@ -56,11 +56,20 @@ async function listCartProducts(req, res) {
 }
 
 async function removeCartProduct(req, res) {
-  const cartItemId = req.body.cartItemId;
+  const cartItemId = req.params.cartItemId;
   if (!cartItemId) {
     return res.sendStatus(422);
   }
   try {
+    const cartItem = await db.collection("cart").findOne({ _id: ObjectId(cartItemId)})
+    const quantity = cartItem.quantity
+    if ( quantity <= 0) {
+      return res.sendStatus(422)
+    }
+    if (quantity > 1) {
+      await db.collection("cart").updateOne({ _id: ObjectId(cartItemId)}, {$set: {quantity: quantity -1}});
+      return res.sendStatus(200);
+    }
     await db.collection("cart").deleteOne({ _id: ObjectId(cartItemId) });
     res.sendStatus(200);
   } catch (error) {
