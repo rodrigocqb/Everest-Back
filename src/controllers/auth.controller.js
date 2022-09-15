@@ -5,9 +5,9 @@ import dayjs from "dayjs";
 import { v4 as uuid } from "uuid";
 
 const createUserSchema = joi.object({
-  name: joi.string().required().empty(),
-  email: joi.string().required().empty().email(),
-  password: joi.string().required().empty(),
+  name: joi.string().required(),
+  email: joi.string().required().email(),
+  password: joi.string().required(),
 });
 
 const loginSchema = joi.object({
@@ -28,7 +28,7 @@ async function createUser(req, res) {
     name,
     email,
     password: bcrypt.hashSync(password, 10),
-    date: dayjs().format("DD/MM/YYYY"),
+    date: dayjs().format("MM/DD/YYYY"),
   };
 
   try {

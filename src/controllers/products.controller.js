@@ -101,7 +101,7 @@ async function completeOrder(req, res) {
       userId: user._id,
       products,
       address,
-      date: dayjs().format("DD/MM/YYYY"),
+      date: dayjs().format("MM/DD/YYYY"),
     });
     await db.collection("cart").deleteMany({ userId: user._id });
   } catch (error) {
