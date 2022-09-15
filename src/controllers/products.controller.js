@@ -29,11 +29,14 @@ async function addToCart(req, res) {
   const product = {
     userId,
     productId,
+    quantity: 1
   };
   try {
-    const hasProduct = await db.collection("cart").findOne({ userId: userId });
+    const hasProduct = await db.collection("cart").findOne({ userId, productId});
     if (hasProduct) {
-      return res.sendStatus(409);
+      const quantity = hasProduct.quantity;
+      await db.collection("cart").updateOne({ userId, productId}, {$set: {quantity: quantity + 1}});
+      return res.sendStatus(200);
     }
     await db.collection("cart").insertOne(product);
     res.sendStatus(200);
@@ -57,6 +60,7 @@ async function listCartProducts(req, res) {
 
 async function removeCartProduct(req, res) {
   const cartItemId = req.params.cartItemId;
+  console.log(cartItemId)
   if (!cartItemId) {
     return res.sendStatus(422);
   }
