@@ -3,11 +3,13 @@ import bcrypt from "bcrypt";
 import joi from "joi";
 import dayjs from "dayjs";
 import { v4 as uuid } from "uuid";
+import { stripHtml } from "string-strip-html";
+
 
 const createUserSchema = joi.object({
-  name: joi.string().required().empty(),
-  email: joi.string().required().empty().email(),
-  password: joi.string().required().empty(),
+  name: joi.string().required(),
+  email: joi.string().required().email(),
+  password: joi.string().required(),
 });
 
 const loginSchema = joi.object({
@@ -23,12 +25,12 @@ async function createUser(req, res) {
   }
   const { name, password } = req.body;
   const email = req.body.email.toLowerCase();
-
+  
   const userData = {
-    name,
+    name: stripHtml(name).result.trim(),
     email,
     password: bcrypt.hashSync(password, 10),
-    date: dayjs().format("DD/MM/YYYY"),
+    date: dayjs().format("MM/DD/YYYY"),
   };
 
   try {
@@ -50,7 +52,8 @@ async function login(req, res) {
   if (validation.error) {
     res.sendStatus(422);
   }
-  const { email, password } = req.body;
+  const { password } = req.body;
+  const email = req.body.email.toLowerCase();
   try {
     const user = await db.collection("users").findOne({ email });
     if (!user) {
