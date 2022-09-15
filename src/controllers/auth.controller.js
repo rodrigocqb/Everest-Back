@@ -50,7 +50,8 @@ async function login(req, res) {
   if (validation.error) {
     res.sendStatus(422);
   }
-  const { email, password } = req.body;
+  const { password } = req.body;
+  const email = req.body.email.toLowerCase();
   try {
     const user = await db.collection("users").findOne({ email });
     if (!user) {
