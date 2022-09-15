@@ -5,7 +5,7 @@ async function validateToken(req, res, next) {
 
     const authorization = req.headers.authorization;
     const token = authorization?.replace('Bearer ', '');
-
+console.log(authorization)
     if (!authorization) {
         return res.sendStatus(401);
     }
@@ -33,6 +33,8 @@ console.log('foi')
 }
 
 async function getUserData(userId) {
-    const userData = await db.collection('users').findOne({ _id: userId })
+    const userData = await db.collection('users').findOne({ _id: ObjectId (userId) })
     return userData
 }
+
+export default validateToken
