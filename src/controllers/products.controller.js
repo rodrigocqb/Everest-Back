@@ -34,8 +34,24 @@ async function addToCart(req, res) {
         res
         .status(500)
         .send(error.message)
-
     }
 }
 
-export { listProducts, addToCart }
+async function listCartProducts(req, res){
+    const userId = res.locals.user._id;
+try {
+    const productsList = await db.collection('cart').find({userId}).toArray();
+    if(!productsList) {
+        return res.sendStatus(404)
+    }
+    res
+    .status(200)
+    .send(productsList)
+} catch (error) {
+    res
+    .status(422)
+    .send(error.message)
+}
+}
+
+export { listProducts, addToCart, listCartProducts }
