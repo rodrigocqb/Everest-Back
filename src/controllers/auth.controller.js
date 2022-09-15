@@ -3,6 +3,8 @@ import bcrypt from "bcrypt";
 import joi from "joi";
 import dayjs from "dayjs";
 import { v4 as uuid } from "uuid";
+import { stripHtml } from "string-strip-html";
+
 
 const createUserSchema = joi.object({
   name: joi.string().required(),
@@ -23,9 +25,9 @@ async function createUser(req, res) {
   }
   const { name, password } = req.body;
   const email = req.body.email.toLowerCase();
-
+  
   const userData = {
-    name,
+    name: stripHtml(name).result.trim(),
     email,
     password: bcrypt.hashSync(password, 10),
     date: dayjs().format("MM/DD/YYYY"),
