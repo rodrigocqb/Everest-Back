@@ -16,6 +16,7 @@ const productSchema = joi.object({
   price: joi.number().required(),
   image: joi.string().uri().required(),
   description: joi.string().required(),
+  categories: joi.array().items(joi.string().required()).required(),
   sizes: joi.array().items(joi.string()),
 });
 
