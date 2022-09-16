@@ -15,7 +15,7 @@ router.post("/products", createProduct);
 
 router.use(authorizationMiddleware);
 
-router.post("/cart", addToCart);
+router.post("/cart/:productId", addToCart);
 router.get("/cart", listCartProducts);
 router.delete("/cart/:cartItemId", removeCartProduct);
 router.post("/order", completeOrder);
