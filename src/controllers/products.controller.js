@@ -17,6 +17,7 @@ const productSchema = joi.object({
   image: joi.string().uri().required(),
   description: joi.string().required(),
   categories: joi.array().items(joi.string().required()).required(),
+  units: joi.number().required(),
   shipping: joi.number().required(),
   sizes: joi.array().items(joi.string()),
 });
@@ -45,7 +46,7 @@ async function listProducts(req, res) {
 }
 
 async function addToCart(req, res) {
-  const { productId } = req.body;
+  const { productId } = req.params;
   if (!productId) {
     return sendStatus(422);
   }
@@ -59,14 +60,37 @@ async function addToCart(req, res) {
     const hasProduct = await db
       .collection("cart")
       .findOne({ userId, productId });
+    const productData = await db.collection.findOne({
+      _id: ObjectId(productId),
+    });
+    if (!productData) {
+      return res.sendStatus(404);
+    }
+    if (productData.units <= 0) {
+      return res
+        .status(404)
+        .send({ error: "There are no more units available" });
+    }
     if (hasProduct) {
       const quantity = hasProduct.quantity;
       await db
         .collection("cart")
         .updateOne({ userId, productId }, { $set: { quantity: quantity + 1 } });
+      await db
+        .collection("products")
+        .updateOne(
+          { _id: ObjectId(productId) },
+          { $set: { units: productData.units - 1 } }
+        );
       return res.sendStatus(200);
     }
     await db.collection("cart").insertOne(product);
+    await db
+      .collection("products")
+      .updateOne(
+        { _id: ObjectId(productId) },
+        { $set: { units: productData.units - 1 } }
+      );
     res.sendStatus(200);
   } catch (error) {
     res.status(500).send(error.message);
@@ -96,6 +120,12 @@ async function removeCartProduct(req, res) {
     const cartItem = await db
       .collection("cart")
       .findOne({ _id: ObjectId(cartItemId) });
+    const productData = await db.collection.findOne({
+      _id: ObjectId(cartItem.productId),
+    });
+    if (!productData) {
+      return res.sendStatus(404);
+    }
     const quantity = cartItem.quantity;
     if (quantity <= 0) {
       return res.sendStatus(422);
@@ -107,9 +137,21 @@ async function removeCartProduct(req, res) {
           { _id: ObjectId(cartItemId) },
           { $set: { quantity: quantity - 1 } }
         );
+      await db
+        .collection("products")
+        .updateOne(
+          { _id: ObjectId(productId) },
+          { $set: { units: productData.units + 1 } }
+        );
       return res.sendStatus(200);
     }
     await db.collection("cart").deleteOne({ _id: ObjectId(cartItemId) });
+    await db
+      .collection("products")
+      .updateOne(
+        { _id: ObjectId(productId) },
+        { $set: { units: productData.units + 1 } }
+      );
     res.sendStatus(200);
   } catch (error) {
     res.status(404).send(error.message);
