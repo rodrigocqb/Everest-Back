@@ -84,7 +84,15 @@ async function addToCart(req, res) {
         );
       return res.sendStatus(200);
     }
-    await db.collection("cart").insertOne(product);
+    await db
+      .collection("cart")
+      .insertOne({
+        ...product,
+        name: productData.name,
+        price: productData.price,
+        image: productData.image,
+        shipping: productData.shipping,
+      });
     await db
       .collection("products")
       .updateOne(
