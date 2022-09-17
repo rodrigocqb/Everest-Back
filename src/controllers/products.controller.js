@@ -121,17 +121,15 @@ async function listCartProducts(req, res) {
 }
 
 async function removeCartProduct(req, res) {
-  const cartItemId = req.params.cartItemId;
-  console.log(cartItemId);
-  if (!cartItemId) {
+  const productId = req.params.productId;
+  const userId = res.locals.user._id;
+  if (!productId) {
     return res.sendStatus(422);
   }
   try {
-    const cartItem = await db
-      .collection("cart")
-      .findOne({ _id: ObjectId(cartItemId) });
+    const cartItem = await db.collection("cart").findOne({ userId, productId });
     const productData = await db.collection("products").findOne({
-      _id: ObjectId(cartItem.productId),
+      _id: ObjectId(productId),
     });
     if (!productData) {
       return res.sendStatus(404);
@@ -143,10 +141,7 @@ async function removeCartProduct(req, res) {
     if (quantity > 1) {
       await db
         .collection("cart")
-        .updateOne(
-          { _id: ObjectId(cartItemId) },
-          { $set: { quantity: quantity - 1 } }
-        );
+        .updateOne({ _id: cartItem._id }, { $set: { quantity: quantity - 1 } });
       await db
         .collection("products")
         .updateOne(
@@ -155,7 +150,7 @@ async function removeCartProduct(req, res) {
         );
       return res.sendStatus(200);
     }
-    await db.collection("cart").deleteOne({ _id: ObjectId(cartItemId) });
+    await db.collection("cart").deleteOne({ _id: cartItem._id });
     await db
       .collection("products")
       .updateOne(
