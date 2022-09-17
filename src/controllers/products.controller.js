@@ -75,7 +75,10 @@ async function addToCart(req, res) {
       const quantity = hasProduct.quantity;
       await db
         .collection("cart")
-        .updateOne({ userId, productId }, { $set: { quantity: quantity + 1 } });
+        .updateOne(
+          { userId, productId },
+          { $set: { quantity: quantity + 1, units: productData.units - 1 } }
+        );
       await db
         .collection("products")
         .updateOne(
@@ -84,15 +87,14 @@ async function addToCart(req, res) {
         );
       return res.sendStatus(200);
     }
-    await db
-      .collection("cart")
-      .insertOne({
-        ...product,
-        name: productData.name,
-        price: productData.price,
-        image: productData.image,
-        shipping: productData.shipping,
-      });
+    await db.collection("cart").insertOne({
+      ...product,
+      name: productData.name,
+      price: productData.price,
+      image: productData.image,
+      shipping: productData.shipping,
+      units: productData.units - 1,
+    });
     await db
       .collection("products")
       .updateOne(
