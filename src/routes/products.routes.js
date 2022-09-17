@@ -6,6 +6,7 @@ import {
   removeCartProduct,
   completeOrder,
   createProduct,
+  getOrders
 } from "../controllers/products.controller.js";
 import authorizationMiddleware from "../middleware/token-auth.middleware.js";
 const router = express.Router();
@@ -19,5 +20,5 @@ router.post("/cart/:productId", addToCart);
 router.get("/cart", listCartProducts);
 router.delete("/cart/:productId", removeCartProduct);
 router.post("/order", completeOrder);
-
+router.get("/order", getOrders);
 export default router;

@@ -191,6 +191,21 @@ async function completeOrder(req, res) {
   }
 }
 
+async function getOrders(req, res) {
+  const user = res.locals.user;
+
+  try {
+    const ordersHistory = await db.collection("orders").find({userId: user._id}).toArray();
+    delete ordersHistory.userId
+    res
+    .status(200)
+    .send(ordersHistory)
+  } catch (error) {
+    res.sendStatus(401)
+  }
+
+}
+
 export {
   listProducts,
   addToCart,
@@ -198,4 +213,5 @@ export {
   removeCartProduct,
   completeOrder,
   createProduct,
+  getOrders
 };
