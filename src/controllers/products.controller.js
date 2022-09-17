@@ -228,6 +228,10 @@ async function addToList(req, res){
   }
 
   try {
+    const hasItem = await db.collection("wishlist").findOne({userId: user._id, productId})
+    if (hasItem){
+      return res.sendStatus(409);
+    }
     await db.collection("wishlist").insertOne({item});
     res.sendStatus(201);
   } catch (error) {
@@ -244,7 +248,7 @@ async function deleteListItem(req, res) {
     res.sendStatus(200)
   } catch (error) {
     res
-    .status(422)
+    .status(404)
     .send(error.message)
   }
 }
