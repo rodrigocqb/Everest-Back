@@ -60,7 +60,7 @@ async function addToCart(req, res) {
     const hasProduct = await db
       .collection("cart")
       .findOne({ userId, productId });
-    const productData = await db.collection.findOne({
+    const productData = await db.collection("products").findOne({
       _id: ObjectId(productId),
     });
     if (!productData) {
@@ -120,7 +120,7 @@ async function removeCartProduct(req, res) {
     const cartItem = await db
       .collection("cart")
       .findOne({ _id: ObjectId(cartItemId) });
-    const productData = await db.collection.findOne({
+    const productData = await db.collection("products").findOne({
       _id: ObjectId(cartItem.productId),
     });
     if (!productData) {
