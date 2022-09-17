@@ -191,6 +191,82 @@ async function completeOrder(req, res) {
   }
 }
 
+async function listOrders(req, res) {
+  const user = res.locals.user;
+
+  try {
+    const ordersHistory = await db.collection("orders").find({userId: user._id}).toArray();
+    delete ordersHistory.userId
+    res
+    .status(200)
+    .send(ordersHistory)
+  } catch (error) {
+    res.sendStatus(401)
+  }
+
+}
+async function addToList(req, res){
+  const user = res.locals.user;
+  const productId = req.params.productId;
+  let price, image, name
+  try {
+    const product = await db.collection("products").findOne({_id: ObjectId(productId)});
+    price = product.name;
+    image = product.image;
+    name = product.name;
+  } catch (error) {
+    return res.sendStatus(500)
+  }
+
+  const item = {
+    userId: user._id,
+    productId,
+    price,
+    image,
+    name,
+    date: dayjs().format("MM/DD/YYYY")
+  }
+
+  try {
+    const hasItem = await db.collection("wishlist").findOne({userId: user._id, productId})
+    if (hasItem){
+      return res.sendStatus(409);
+    }
+    await db.collection("wishlist").insertOne({item});
+    res.sendStatus(201);
+  } catch (error) {
+    res
+    .status(422)
+    .send(error.message)
+  }
+}
+
+async function deleteListItem(req, res) {
+  const itemId = req.params.itemId;
+  try {
+    await db.collection("wishlist").deleteOne({_Id: ObjectId(itemId)})
+    res.sendStatus(200)
+  } catch (error) {
+    res
+    .status(404)
+    .send(error.message)
+  }
+}
+
+async function listWishlist(req, res) {
+  const user = res.locals.user;
+try {
+  const items = await db.collection("wishlist").find({userId: user._id}).toArray();
+  res
+  .status(200)
+  .send(items)
+} catch (error) {
+  res
+  .status(422)
+  .send(error.message)
+}
+}
+
 export {
   listProducts,
   addToCart,
@@ -198,4 +274,8 @@ export {
   removeCartProduct,
   completeOrder,
   createProduct,
+  listOrders,
+  addToList,
+  deleteListItem,
+  listWishlist
 };
