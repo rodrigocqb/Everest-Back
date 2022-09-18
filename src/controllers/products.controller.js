@@ -243,6 +243,7 @@ async function addToList(req, res) {
   const user = res.locals.user;
   const productId = req.params.productId;
   let price, image, name;
+  console.log(productId);
   try {
     const product = await db
       .collection("products")
@@ -262,7 +263,6 @@ async function addToList(req, res) {
     name,
     date: dayjs().format("MM/DD/YYYY"),
   };
-
   try {
     const hasItem = await db
       .collection("wishlist")
