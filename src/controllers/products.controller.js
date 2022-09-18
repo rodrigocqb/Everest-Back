@@ -11,6 +11,19 @@ const addressSchema = joi.object({
   state: joi.string().required(),
 });
 
+const paymentDataSchema = joi.object({
+  cardNumber: joi
+    .string()
+    .pattern(/^[0-9]{16}$/)
+    .required(),
+  expirationDate: joi
+    .string()
+    .pattern(/^(0[1-9]|1[0-2])\/?([0-9]{4}|[0-9]{2})$/)
+    .required(),
+  name: joi.string().required(),
+  securityCode: joi.number().min(100).max(999).required(),
+});
+
 const productSchema = joi.object({
   name: joi.string().required(),
   price: joi.number().required(),
@@ -165,10 +178,29 @@ async function removeCartProduct(req, res) {
 
 async function completeOrder(req, res) {
   const user = res.locals.user;
-  const address = req.body;
+  const address = {
+    street: req.body.street,
+    number: req.body.number,
+    zipCode: req.body.zipCode,
+    city: req.body.city,
+    state: req.body.state,
+  };
+  const paymentData = {
+    cardNumber: req.body.cardNumber,
+    expirationDate: req.body.expirationDate,
+    name: req.body.name,
+    securityCode: req.body.securityCode,
+  };
   const validation = addressSchema.validate(address, { abortEarly: false });
+  const validation2 = paymentDataSchema.validate(paymentData, {
+    abortEarly: false,
+  });
   if (validation.error) {
     const errors = validation.error.details.map((value) => value.message);
+    return res.status(422).send(errors);
+  }
+  if (validation2.error) {
+    const errors = validation2.error.details.map((value) => value.message);
     return res.status(422).send(errors);
   }
   try {
@@ -183,6 +215,7 @@ async function completeOrder(req, res) {
       userId: user._id,
       products,
       address,
+      paymentData,
       date: dayjs().format("MM/DD/YYYY"),
     });
     await db.collection("cart").deleteMany({ userId: user._id });
