@@ -243,13 +243,13 @@ async function addToList(req, res) {
   const user = res.locals.user;
   const productId = req.params.productId;
   let price, image, name;
-  console.log(productId);
+ 
 
   try {
     const product = await db
       .collection("products")
       .findOne({ _id: ObjectId(productId) });
-    price = product.name;
+    price = product.price;
     image = product.image;
     name = product.name;
   } catch (error) {
@@ -271,7 +271,7 @@ async function addToList(req, res) {
     if (hasItem) {
       return res.sendStatus(409);
     }
-    await db.collection("wishlist").insertOne({ item });
+    await db.collection("wishlist").insertOne(item);
     res.sendStatus(201);
   } catch (error) {
     res.status(422).send(error.message);
@@ -293,7 +293,7 @@ async function listWishlist(req, res) {
   try {
     const items = await db
       .collection("wishlist")
-      .find({ userId: user._id })
+      .find({ userId: ObjectId(user._id) })
       .toArray();
     res.status(200).send(items);
   } catch (error) {
