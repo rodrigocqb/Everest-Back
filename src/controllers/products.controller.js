@@ -280,9 +280,11 @@ async function addToList(req, res) {
 
 async function deleteListItem(req, res) {
   const itemId = req.params.itemId;
+  console.log(itemId)
   try {
-    await db.collection("wishlist").deleteOne({ _Id: ObjectId(itemId) });
+    await db.collection("wishlist").deleteOne({ _id: ObjectId(itemId) });
     res.sendStatus(200);
+    console.log('foi')
   } catch (error) {
     res.status(404).send(error.message);
   }

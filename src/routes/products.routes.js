@@ -25,6 +25,6 @@ router.delete("/cart/:productId", removeCartProduct);
 router.post("/order", completeOrder);
 router.get("/order", listOrders);
 router.post("/wishlist/:productId", addToList);
-router.delete("/wishlist/:productId", deleteListItem);
+router.delete("/wishlist/:itemId", deleteListItem);
 router.get("/wishlist", listWishlist);
 export default router;
