@@ -244,6 +244,7 @@ async function addToList(req, res) {
   const productId = req.params.productId;
   let price, image, name;
   console.log(productId);
+
   try {
     const product = await db
       .collection("products")
