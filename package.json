@@ -11,7 +11,7 @@
     "string-strip-html": "^11.6.4",
     "uuid": "^9.0.0"
   },
-  "name": "projeto14-everest-back",
+  "name": "everest-back",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
@@ -21,14 +21,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Tavares-ltc/Everest-Back.git"
+    "url": "git+https://github.com/rodrigocqb/Everest-Back.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/Tavares-ltc/Everest-Back/issues"
+    "url": "https://github.com/rodrigocqb/Everest-Back/issues"
   },
-  "homepage": "https://github.com/Tavares-ltc/Everest-Back#readme",
+  "homepage": "https://github.com/rodrigocqb/Everest-Back#readme",
   "description": ""
 }
